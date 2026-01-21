@@ -6,14 +6,26 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "*";
+const ALLOWED = new Set([
+  "https://carlospasa.github.io",
+  "http://localhost",
+  "http://127.0.0.1"
+]);
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
-  res.setHeader("Vary", "Origin");
+  const origin = req.headers.origin;
+
+  if (origin && ALLOWED.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  }
+
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") return res.status(204).end();
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
   next();
 });
 
