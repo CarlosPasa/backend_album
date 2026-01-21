@@ -17,7 +17,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/health", (req, res) => res.json({ ok: true }));
+// 🔹 Ruta raíz (MUY IMPORTANTE)
+app.get("/", (req, res) => {
+  res.json({ ok: true, service: "backend-album" });
+});
+
+// 🔹 Health check
+app.get("/health", (req, res) => {
+  res.json({ ok: true });
+});
 
 app.post("/upload", upload.single("photo"), async (req, res) => {
   try {
