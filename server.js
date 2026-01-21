@@ -47,9 +47,10 @@ app.post("/upload", upload.single("photo"), async (req, res) => {
 
     const form = new FormData();
     form.append("chat_id", CHAT_ID);
-    form.append("photo", new Blob([req.file.buffer]), req.file.originalname || "photo.jpg");
+    // 👇 enviar como DOCUMENTO para evitar compresión
+    form.append("document", new Blob([req.file.buffer]), req.file.originalname || "photo.jpg");
 
-    const sendResp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+    const sendResp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
       method: "POST",
       body: form
     });
@@ -59,9 +60,7 @@ app.post("/upload", upload.single("photo"), async (req, res) => {
       return res.status(502).json({ ok: false, error: "Telegram sendPhoto failed", details: sendJson });
     }
 
-    const photos = sendJson.result.photo;
-    const best = photos[photos.length - 1];
-    const file_id = best.file_id;
+    const file_id = sendJson.result.document.file_id;
 
     const getResp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${encodeURIComponent(file_id)}`);
     const getJson = await getResp.json();
